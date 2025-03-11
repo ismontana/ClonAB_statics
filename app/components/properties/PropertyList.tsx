@@ -1,28 +1,50 @@
+'use client'
+
+import { useEffect, useState } from "react";
 import PropertyListItem from "./PropertyListItem";
-import Image from "next/image";
+
+export type PropertyType = {
+    id: string
+    title: string
+    price_per_night: number
+    image_url: string
+}
 
 const PropertyList = () => {
+    const [properties, setProperties] = useState<PropertyType[]>([])
+    const getProperties = async () => {
+        const url = 'http://localhost:8000/api/properties/'
+
+        await fetch(url, {
+            method: 'GET',
+        })
+            .then(response => response.json())
+            .then((json) => {
+                console.log('json', json)
+
+                setProperties(json.data)
+            })
+            .catch((error) => {
+                console.log('error', error)
+            })
+    };
+
+    useEffect(() => {
+        getProperties();
+    }, [])
+
     return (
-        <div className="cursor-pointer">
-            <div className="relative overflow-hidden aspect-square rounded-xl">
-                <Image
-                    fill
-                    src='/beach_1.jpg'
-                    sizes='(max-width: 768px) 768px, (max-width: 1200px) 1200px, 768px'
-                    className="hover:scale-110 object-cover transition h-full"
-                    alt='Beach house'
-                />
-            </div>
-
-            <div className="mt-2">
-                <p className="text-lg font-bold">Property name</p>
-            </div>
-
-            <div className="mt-2">
-                <p className="text-sm text-gray-500"><strong>$200</strong> per night</p>
-            </div>
-
-        </div>
+        <>
+        {properties.map((property) => {
+                return (
+                    <PropertyListItem 
+                    key={property.id}
+                    property={property}
+                    />
+                )
+            })
+        }
+        </>
     )
 }
 
